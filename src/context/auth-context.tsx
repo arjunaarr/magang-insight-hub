@@ -2,12 +2,14 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { User } from "@/types";
 import { mockUsers } from "@/lib/mock-data";
+import { api } from "@/lib/api-service";
 
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
+  updateUserData: (userData: Partial<User>) => Promise<User>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -54,8 +56,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("mangInsightUser");
   };
 
+  const updateUserData = async (userData: Partial<User>): Promise<User> => {
+    if (!user) throw new Error("No user logged in");
+    
+    try {
+      const updatedUser = await api.intern.updateProfile(user.id, userData);
+      setUser(updatedUser);
+      localStorage.setItem("mangInsightUser", JSON.stringify(updatedUser));
+      return updatedUser;
+    } catch (error) {
+      console.error("Update user error:", error);
+      throw error;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, logout, isLoading, updateUserData }}>
       {children}
     </AuthContext.Provider>
   );

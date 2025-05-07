@@ -70,7 +70,10 @@ const RegisterInternPage = () => {
     setLoading(true);
     try {
       const userData: RegisterUserData = {
-        ...values,
+        name: values.name,
+        email: values.email,
+        university: values.university,
+        field: values.field,
         role: "intern",
       };
       
