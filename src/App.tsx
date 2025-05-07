@@ -16,6 +16,8 @@ import InternsPage from "./pages/admin/interns";
 import InternDetailPage from "./pages/admin/intern-detail";
 import ReportsPage from "./pages/admin/reports";
 import SettingsPage from "./pages/admin/settings";
+import RegisterInternPage from "./pages/admin/register-intern";
+import SubmissionStatusPage from "./pages/admin/submission-status";
 
 // Intern pages
 import InternDashboard from "./pages/intern/dashboard";
@@ -93,6 +95,22 @@ const AppRoutes = () => {
         <ProtectedRoute requiredRole="admin">
           <MainLayout>
             <SettingsPage />
+          </MainLayout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/register-intern" element={
+        <ProtectedRoute requiredRole="admin">
+          <MainLayout>
+            <RegisterInternPage />
+          </MainLayout>
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/submission-status" element={
+        <ProtectedRoute requiredRole="admin">
+          <MainLayout>
+            <SubmissionStatusPage />
           </MainLayout>
         </ProtectedRoute>
       } />

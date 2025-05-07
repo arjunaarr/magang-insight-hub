@@ -38,3 +38,12 @@ export interface LoginCredentials {
   email: string;
   password: string;
 }
+
+// New interface for user registration
+export interface RegisterUserData {
+  name: string;
+  email: string;
+  university?: string;
+  field?: string;
+  role: 'admin' | 'intern';
+}

@@ -14,7 +14,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, User } from "lucide-react";
+import { Search, User, UserPlus } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
 const InternsPage = () => {
@@ -77,11 +78,16 @@ const InternsPage = () => {
         title="Daftar Anak Magang"
         description="Kelola dan pantau seluruh anak magang"
       >
-        <Button>Tambah Anak Magang</Button>
+        <Link to="/register-intern">
+          <Button>
+            <UserPlus className="h-4 w-4 mr-2" />
+            Tambah Anak Magang
+          </Button>
+        </Link>
       </PageHeader>
 
       <div className="mb-6 flex items-center relative">
-        <Search className="absolute left-3 h-4 w-4 text-gray-400" />
+        <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
         <Input
           placeholder="Cari berdasarkan nama, universitas, atau bidang..."
           className="pl-10"
@@ -106,17 +112,18 @@ const InternsPage = () => {
                 <TableRow key={intern.id}>
                   <TableCell className="font-medium">
                     <div className="flex items-center space-x-3">
-                      <div className="h-8 w-8 rounded-full bg-magang-light flex items-center justify-center text-magang-primary">
+                      <Avatar className="h-8 w-8">
                         {intern.avatar ? (
-                          <img
+                          <AvatarImage
                             src={intern.avatar}
                             alt={intern.name}
-                            className="h-8 w-8 rounded-full"
                           />
                         ) : (
-                          <User className="h-4 w-4" />
+                          <AvatarFallback>
+                            <User className="h-4 w-4" />
+                          </AvatarFallback>
                         )}
-                      </div>
+                      </Avatar>
                       <span>{intern.name}</span>
                     </div>
                   </TableCell>

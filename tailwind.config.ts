@@ -63,13 +63,13 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Custom colors for the Magang Insight Hub
+				// Custom colors for Kominfo Semarang theme
 				magang: {
-					primary: '#4527A0',
-					secondary: '#7E57C2',
-					accent: '#B39DDB',
-					light: '#EDE7F6',
-					dark: '#311B92',
+					primary: '#0066cc', // Blue primary color
+					secondary: '#3498db', // Secondary blue
+					accent: '#a3cffa',   // Light blue accent
+					light: '#e6f0fa',    // Very light blue for backgrounds
+					dark: '#004080',     // Dark blue
 					success: '#4CAF50',
 					warning: '#FFC107',
 					danger: '#F44336',
