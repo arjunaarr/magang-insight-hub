@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,17 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Custom colors for the Magang Insight Hub
+				magang: {
+					primary: '#4527A0',
+					secondary: '#7E57C2',
+					accent: '#B39DDB',
+					light: '#EDE7F6',
+					dark: '#311B92',
+					success: '#4CAF50',
+					warning: '#FFC107',
+					danger: '#F44336',
 				}
 			},
 			borderRadius: {
