@@ -1,172 +1,96 @@
-
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "@/context/auth-context";
-import MainLayout from "@/components/layout/main-layout";
-
-// Auth pages
+import React, { useState } from "react";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/auth-context";
 import Login from "./pages/login";
-
-// Admin pages
 import AdminDashboard from "./pages/admin/dashboard";
-import InternsPage from "./pages/admin/interns";
-import InternDetailPage from "./pages/admin/intern-detail";
+import InternDashboard from "./pages/intern/dashboard";
+import InternsList from "./pages/admin/interns";
 import ReportsPage from "./pages/admin/reports";
-import SettingsPage from "./pages/admin/settings";
 import RegisterInternPage from "./pages/admin/register-intern";
 import SubmissionStatusPage from "./pages/admin/submission-status";
-
-// Intern pages
-import InternDashboard from "./pages/intern/dashboard";
-import MyReportsPage from "./pages/intern/my-reports";
+import InternDetailPage from "./pages/admin/intern-detail";
+import Settings from "./pages/settings";
 import SubmitReportPage from "./pages/intern/submit-report";
-import ProfilePage from "./pages/intern/profile";
+import MyReportsPage from "./pages/intern/my-reports";
+import EditProfilePage from "./pages/intern/edit-profile";
+import ReportDetailPage from "./pages/admin/report-detail";
 
-// Shared pages
-import NotFound from "./pages/not-found";
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </AuthProvider>
+  );
+}
 
-const queryClient = new QueryClient();
-
-// Protected route component
-const ProtectedRoute = ({ 
-  children, 
-  requiredRole 
-}: { 
-  children: React.ReactNode;
-  requiredRole?: 'admin' | 'intern';
-}) => {
+function AppContent() {
   const { user, isLoading } = useAuth();
+  const [isAuthenticated, setIsAuthenticated] = useState(!!user);
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  if (!user) {
-    return <Navigate to="/login" />;
-  }
-
-  if (requiredRole && user.role !== requiredRole) {
-    return <Navigate to="/" />;
-  }
-
-  return <>{children}</>;
-};
-
-const AppRoutes = () => {
-  const { user } = useAuth();
-
   return (
     <Routes>
-      {/* Public routes */}
-      <Route 
-        path="/login" 
-        element={user ? <Navigate to="/" /> : <Login />} 
+      {/* Public Routes */}
+      <Route path="login" element={!user ? <Login /> : <Navigate to="/dashboard" />} />
+
+      {/* Admin Routes */}
+      <Route
+        path="dashboard"
+        element={user?.role === 'admin' ? <AdminDashboard /> : <Navigate to="/login" />}
+      />
+      <Route
+        path="interns"
+        element={user?.role === 'admin' ? <InternsList /> : <Navigate to="/login" />}
+      />
+      <Route
+        path="reports"
+        element={user?.role === 'admin' ? <ReportsPage /> : <Navigate to="/login" />}
+      />
+      <Route path="reports/:id" element={<ReportDetailPage />} />
+      <Route
+        path="register-intern"
+        element={user?.role === 'admin' ? <RegisterInternPage /> : <Navigate to="/login" />}
+      />
+      <Route
+        path="submission-status"
+        element={user?.role === 'admin' ? <SubmissionStatusPage /> : <Navigate to="/login" />}
+      />
+      <Route
+        path="interns/:id"
+        element={user?.role === 'admin' ? <InternDetailPage /> : <Navigate to="/login" />}
+      />
+      <Route
+        path="settings"
+        element={user?.role === 'admin' ? <Settings /> : <Navigate to="/login" />}
       />
 
-      {/* Protected routes for admins */}
-      <Route path="/interns" element={
-        <ProtectedRoute requiredRole="admin">
-          <MainLayout>
-            <InternsPage />
-          </MainLayout>
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/interns/:id" element={
-        <ProtectedRoute requiredRole="admin">
-          <MainLayout>
-            <InternDetailPage />
-          </MainLayout>
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/reports" element={
-        <ProtectedRoute requiredRole="admin">
-          <MainLayout>
-            <ReportsPage />
-          </MainLayout>
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/settings" element={
-        <ProtectedRoute requiredRole="admin">
-          <MainLayout>
-            <SettingsPage />
-          </MainLayout>
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/register-intern" element={
-        <ProtectedRoute requiredRole="admin">
-          <MainLayout>
-            <RegisterInternPage />
-          </MainLayout>
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/submission-status" element={
-        <ProtectedRoute requiredRole="admin">
-          <MainLayout>
-            <SubmissionStatusPage />
-          </MainLayout>
-        </ProtectedRoute>
-      } />
+      {/* Intern Routes */}
+      <Route
+        path="intern/dashboard"
+        element={user?.role === 'intern' ? <InternDashboard /> : <Navigate to="/login" />}
+      />
+      <Route
+        path="intern/submit-report"
+        element={user?.role === 'intern' ? <SubmitReportPage /> : <Navigate to="/login" />}
+      />
+      <Route
+        path="intern/my-reports"
+        element={user?.role === 'intern' ? <MyReportsPage /> : <Navigate to="/login" />}
+      />
+      <Route
+        path="intern/edit-profile"
+        element={user?.role === 'intern' ? <EditProfilePage /> : <Navigate to="/login" />}
+      />
 
-      {/* Protected routes for interns */}
-      <Route path="/my-reports" element={
-        <ProtectedRoute requiredRole="intern">
-          <MainLayout>
-            <MyReportsPage />
-          </MainLayout>
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/submit-report" element={
-        <ProtectedRoute requiredRole="intern">
-          <MainLayout>
-            <SubmitReportPage />
-          </MainLayout>
-        </ProtectedRoute>
-      } />
-      
-      <Route path="/profile" element={
-        <ProtectedRoute>
-          <MainLayout>
-            <ProfilePage />
-          </MainLayout>
-        </ProtectedRoute>
-      } />
-
-      {/* Home route - shows different dashboard based on user role */}
-      <Route path="/" element={
-        <ProtectedRoute>
-          <MainLayout>
-            {user?.role === "admin" ? <AdminDashboard /> : <InternDashboard />}
-          </MainLayout>
-        </ProtectedRoute>
-      } />
-
-      {/* Not found route */}
-      <Route path="*" element={<NotFound />} />
+      {/* Default Route */}
+      <Route path="/" element={<Navigate to={user ? (user.role === 'admin' ? '/dashboard' : '/intern/dashboard') : '/login'} />} />
     </Routes>
   );
-};
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
-);
+}
 
 export default App;

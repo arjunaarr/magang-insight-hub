@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { api } from "@/lib/api-service";
 import PageHeader from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
@@ -19,9 +20,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Download } from "lucide-react";
+import { Search, Download, Image } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 const ReportsPage = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [reports, setReports] = useState<any[]>([]);
   const [filteredReports, setFilteredReports] = useState<any[]>([]);
@@ -38,15 +41,13 @@ const ReportsPage = () => {
         const allFields = await api.admin.getFields();
 
         // Combine reports with intern data
-        const reportsWithInterns = await Promise.all(
-          allReports.map(async (report) => {
-            const intern = allInterns.find((i) => i.id === report.internId);
-            return {
-              ...report,
-              intern,
-            };
-          })
-        );
+        const reportsWithInterns = allReports.map((report) => {
+          const intern = allInterns.find((i) => i.id === report.internId);
+          return {
+            ...report,
+            intern,
+          };
+        });
 
         setReports(reportsWithInterns);
         setFilteredReports(reportsWithInterns);
@@ -67,7 +68,7 @@ const ReportsPage = () => {
 
     if (searchQuery) {
       filtered = filtered.filter((report) =>
-        report.intern?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        report.intern?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         report.reportDate.includes(searchQuery)
       );
     }
@@ -83,19 +84,18 @@ const ReportsPage = () => {
 
   // Function to export reports as CSV
   const exportToCSV = () => {
-    const headers = ["Timestamp", "Nama", "Sekolah/Universitas", "Penempatan Bidang", "Tanggal Report", "Report Links"];
+    const headers = ["Timestamp", "Nama", "Sekolah/Universitas", "Penempatan Bidang", "Tanggal Report", "Jumlah Foto"];
     
     const csvData = [
       headers.join(","),
       ...filteredReports.map(report => {
-        const reportLinks = report.reportLinks.join("|");
         return [
           report.timestamp,
           report.intern?.name || "",
           report.intern?.university || "",
           report.intern?.field || "",
           report.reportDate,
-          `"${reportLinks}"`
+          report.reportPhotos?.length || 0
         ].join(",");
       })
     ].join("\n");
@@ -109,6 +109,18 @@ const ReportsPage = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  // Function to view report details
+  const viewReportDetails = (reportId: string) => {
+    navigate(`/reports/${reportId}`);
+  };
+
+  // Calculate submission percentage for each intern
+  const getSubmissionPercentage = (internId: string) => {
+    const internReports = reports.filter(report => report.internId === internId);
+    const stats = api.admin.getInternStats(internId);
+    return stats.submissionRate ? Math.round(stats.submissionRate) : 0;
   };
 
   if (loading) {
@@ -166,6 +178,7 @@ const ReportsPage = () => {
               <TableHead>Universitas</TableHead>
               <TableHead>Bidang</TableHead>
               <TableHead>Laporan</TableHead>
+              <TableHead>Tingkat Keaktifan</TableHead>
               <TableHead className="text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
@@ -188,26 +201,33 @@ const ReportsPage = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
-                      {report.reportLinks.slice(0, 3).map((link: string, index: number) => (
-                        <a
-                          key={index}
-                          href={link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
-                        >
-                          Report {index + 1}
-                        </a>
-                      ))}
-                      {report.reportLinks.length > 3 && (
-                        <span className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded">
-                          +{report.reportLinks.length - 3} more
-                        </span>
+                      {report.reportPhotos && report.reportPhotos.length > 0 ? (
+                        <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-none">
+                          <Image className="h-3 w-3 mr-1" />
+                          {report.reportPhotos.length} foto
+                        </Badge>
+                      ) : (
+                        <span className="text-xs text-gray-500">Tidak ada foto</span>
                       )}
                     </div>
                   </TableCell>
+                  <TableCell>
+                    {report.intern?.id ? (
+                      <div className="w-full bg-gray-200 rounded-full h-2.5">
+                        <div 
+                          className="bg-blue-600 h-2.5 rounded-full" 
+                          style={{ width: `${getSubmissionPercentage(report.intern.id)}%` }}
+                        ></div>
+                        <span className="text-xs mt-1 block">{getSubmissionPercentage(report.intern.id)}%</span>
+                      </div>
+                    ) : "-"}
+                  </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => viewReportDetails(report.id)}
+                    >
                       Lihat Detail
                     </Button>
                   </TableCell>
@@ -215,7 +235,7 @@ const ReportsPage = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-6">
+                <TableCell colSpan={7} className="text-center py-6">
                   Tidak ada data laporan yang sesuai dengan filter
                 </TableCell>
               </TableRow>

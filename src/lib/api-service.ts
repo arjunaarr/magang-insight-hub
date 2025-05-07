@@ -164,7 +164,7 @@ export const api = {
       return mockReports.filter(report => report.internId === internId);
     },
     
-    submitReport: async (internId: string, reportDate: string, reportLinks: string[]) => {
+    submitReport: async (internId: string, reportDate: string, reportPhotos: string[]) => {
       await delay(800);
       
       const newReport: Report = {
@@ -172,7 +172,7 @@ export const api = {
         internId,
         timestamp: new Date().toLocaleString(),
         reportDate,
-        reportLinks,
+        reportPhotos, // Changed from reportLinks to reportPhotos
         createdAt: new Date().toISOString()
       };
       

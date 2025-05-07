@@ -16,7 +16,7 @@ export interface Report {
   internId: string;
   timestamp: string;
   reportDate: string;
-  reportLinks: string[];
+  reportPhotos: string[]; // Changed from reportLinks to reportPhotos
   createdAt: string;
 }
 

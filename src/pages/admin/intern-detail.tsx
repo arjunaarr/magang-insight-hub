@@ -26,7 +26,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { User as UserIcon, Calendar, FileText, CheckCircle } from "lucide-react";
+import { User as UserIcon, Calendar, FileText, CheckCircle, Image } from "lucide-react";
 import DashboardCard from "@/components/ui/dashboard-card";
 
 const InternDetailPage = () => {
@@ -153,7 +153,7 @@ const InternDetailPage = () => {
                   <TableRow>
                     <TableHead className="w-[180px]">Tanggal Laporan</TableHead>
                     <TableHead className="w-[180px]">Waktu Submit</TableHead>
-                    <TableHead>Link Laporan</TableHead>
+                    <TableHead>Foto Laporan</TableHead>
                     <TableHead className="text-right">Aksi</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -165,26 +165,39 @@ const InternDetailPage = () => {
                         <TableCell>{report.timestamp.split(" ")[1]}</TableCell>
                         <TableCell>
                           <div className="flex flex-wrap gap-2">
-                            {report.reportLinks.slice(0, 3).map((link: string, index: number) => (
-                              <a
-                                key={index}
-                                href={link}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
-                              >
-                                Report {index + 1}
-                              </a>
-                            ))}
-                            {report.reportLinks.length > 3 && (
-                              <span className="text-xs px-2 py-1 bg-gray-100 text-gray-700 rounded">
-                                +{report.reportLinks.length - 3} more
-                              </span>
+                            {report.reportPhotos && report.reportPhotos.length > 0 ? (
+                              <>
+                                <div className="flex items-center bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                                  <Image className="h-3 w-3 mr-1" />
+                                  <span className="text-xs">{report.reportPhotos.length} foto</span>
+                                </div>
+                                <div className="flex gap-1">
+                                  {report.reportPhotos.slice(0, 2).map((photo: string, index: number) => (
+                                    <img 
+                                      key={index} 
+                                      src={photo} 
+                                      alt={`Thumbnail ${index}`} 
+                                      className="h-8 w-8 object-cover rounded border"
+                                    />
+                                  ))}
+                                  {report.reportPhotos.length > 2 && (
+                                    <div className="h-8 w-8 bg-gray-100 flex items-center justify-center rounded border text-xs text-gray-600">
+                                      +{report.reportPhotos.length - 2}
+                                    </div>
+                                  )}
+                                </div>
+                              </>
+                            ) : (
+                              <span className="text-xs text-gray-500">Tidak ada foto</span>
                             )}
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button variant="outline" size="sm">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => window.location.href = `/reports/${report.id}`}
+                          >
                             Lihat Detail
                           </Button>
                         </TableCell>

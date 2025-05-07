@@ -1,189 +1,267 @@
 
-import React, { useState, useEffect } from "react";
-import { useAuth } from "@/context/auth-context";
-import { api } from "@/lib/api-service";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { api } from "@/lib/api-service";
+import { useAuth } from "@/context/auth-context";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import PageHeader from "@/components/ui/page-header";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
-import { FileText, Plus, X } from "lucide-react";
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/use-toast";
+import { Calendar as CalendarIcon, Loader2, Upload, Plus, X } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
-const MAX_REPORTS = 5;
+// Mock image upload function (in a real app, this would use a file upload service)
+const uploadImage = async (file: File): Promise<string> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      // Simulate creating a data URL (in a real app, this would be a URL from your storage service)
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        resolve(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }, 1000);
+  });
+};
+
+const formSchema = z.object({
+  date: z.date({
+    required_error: "Tanggal laporan harus diisi.",
+  }),
+  photos: z.array(z.string()).min(1, "Minimal satu foto harus diunggah."),
+});
 
 const SubmitReportPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const [uploading, setUploading] = useState(false);
+  const [photoPreview, setPhotoPreview] = useState<string[]>([]);
   
-  const [reportDate, setReportDate] = useState("");
-  const [reportLinks, setReportLinks] = useState<string[]>([""]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      date: new Date(),
+      photos: [],
+    },
+  });
   
-  useEffect(() => {
-    // Set default date to today's date
-    const today = new Date();
-    const formattedDate = today.toISOString().split("T")[0]; // Format as YYYY-MM-DD
-    setReportDate(formattedDate);
-  }, []);
-  
-  const handleLinkChange = (index: number, value: string) => {
-    const newLinks = [...reportLinks];
-    newLinks[index] = value;
-    setReportLinks(newLinks);
-  };
-  
-  const addLinkField = () => {
-    if (reportLinks.length < MAX_REPORTS) {
-      setReportLinks([...reportLinks, ""]);
-    } else {
-      toast({
-        title: "Batas maksimum",
-        description: `Maksimum ${MAX_REPORTS} link laporan per submit`,
-        variant: "default",
-      });
-    }
-  };
-  
-  const removeLinkField = (index: number) => {
-    if (reportLinks.length > 1) {
-      const newLinks = reportLinks.filter((_, i) => i !== index);
-      setReportLinks(newLinks);
-    }
-  };
-  
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Validate non-empty links
-    const validLinks = reportLinks.filter(link => link.trim() !== "");
-    if (validLinks.length === 0) {
-      toast({
-        title: "Error",
-        description: "Masukkan minimal 1 link laporan",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setIsSubmitting(true);
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (!user) return;
     
     try {
-      // Format the date as DD/MM/YYYY for consistency with the mock data
-      const parts = reportDate.split("-");
-      const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
-      
-      await api.intern.submitReport(user!.id, formattedDate, validLinks);
+      const formattedDate = format(values.date, "yyyy-MM-dd");
+      await api.intern.submitReport(user.id, formattedDate, values.photos);
       
       toast({
-        title: "Sukses",
-        description: "Laporan berhasil disubmit",
-        variant: "default",
+        title: "Laporan berhasil disubmit!",
+        description: "Terima kasih telah mengumpulkan laporan hari ini.",
       });
       
       navigate("/my-reports");
     } catch (error) {
       console.error("Error submitting report:", error);
       toast({
-        title: "Error",
-        description: "Gagal mengirim laporan. Silakan coba lagi.",
+        title: "Gagal submit laporan",
+        description: "Terjadi kesalahan saat mengumpulkan laporan. Silakan coba lagi.",
         variant: "destructive",
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
   
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    
+    setUploading(true);
+    
+    try {
+      const uploadPromises = Array.from(files).map(file => uploadImage(file));
+      const uploadedUrls = await Promise.all(uploadPromises);
+      
+      // Get current photos and add new ones
+      const currentPhotos = form.getValues("photos") || [];
+      const newPhotos = [...currentPhotos, ...uploadedUrls];
+      
+      // Update form
+      form.setValue("photos", newPhotos, { shouldValidate: true });
+      setPhotoPreview(newPhotos);
+      
+      toast({
+        title: "Foto berhasil diunggah",
+        description: `${files.length} foto telah ditambahkan ke laporan.`,
+      });
+    } catch (error) {
+      console.error("Error uploading photos:", error);
+      toast({
+        title: "Gagal mengunggah foto",
+        description: "Terjadi kesalahan saat mengunggah foto. Silakan coba lagi.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+      // Reset file input
+      e.target.value = "";
+    }
+  };
+  
+  const removePhoto = (index: number) => {
+    const currentPhotos = [...form.getValues("photos")];
+    currentPhotos.splice(index, 1);
+    form.setValue("photos", currentPhotos, { shouldValidate: true });
+    setPhotoPreview(currentPhotos);
+  };
+
   return (
     <div>
-      <PageHeader title="Submit Laporan" description="Kirim laporan kegiatan magang" />
-      
-      <Card className="max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle>Form Laporan</CardTitle>
-          <CardDescription>
-            Masukkan tanggal dan link Google Drive laporan Anda
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <label htmlFor="reportDate" className="text-sm font-medium">
-                Tanggal Laporan
-              </label>
-              <Input
-                id="reportDate"
-                type="date"
-                value={reportDate}
-                onChange={(e) => setReportDate(e.target.value)}
-                required
-                max={new Date().toISOString().split("T")[0]} // Can't select future dates
-              />
-            </div>
-            
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Link Laporan</label>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={addLinkField}
-                  disabled={reportLinks.length >= MAX_REPORTS}
-                >
-                  <Plus className="h-4 w-4 mr-1" />
-                  Tambah Link
-                </Button>
-              </div>
-              
-              {reportLinks.map((link, index) => (
-                <div key={index} className="flex gap-2">
-                  <div className="relative flex-1">
-                    <FileText className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                    <Input
-                      placeholder={`Link Laporan ${index + 1}`}
-                      className="pl-10"
-                      value={link}
-                      onChange={(e) => handleLinkChange(index, e.target.value)}
-                      required={index === 0} // Only the first link is required
-                    />
-                  </div>
-                  {reportLinks.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeLinkField(index)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-            </div>
-            
-            <div className="flex justify-end space-x-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate(-1)}
-              >
-                Batal
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Mengirim..." : "Submit Laporan"}
-              </Button>
-            </div>
+      <PageHeader
+        title="Submit Laporan Kegiatan"
+        description="Silakan submit laporan kegiatan harian Anda"
+      />
+
+      <div className="max-w-3xl mx-auto">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <FormField
+              control={form.control}
+              name="date"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Tanggal Laporan</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pilih tanggal</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) => date > new Date()}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="photos"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Foto Laporan</FormLabel>
+                  <FormControl>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-2">
+                        {photoPreview.map((photo, index) => (
+                          <div 
+                            key={index} 
+                            className="relative border rounded-md overflow-hidden h-40"
+                          >
+                            <img 
+                              src={photo} 
+                              alt={`Preview ${index}`} 
+                              className="w-full h-full object-cover" 
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="icon"
+                              className="absolute top-2 right-2 h-6 w-6"
+                              onClick={() => removePhoto(index)}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ))}
+                        <label className="border-2 border-dashed border-gray-300 rounded-md flex flex-col items-center justify-center h-40 bg-gray-50 hover:bg-gray-100 cursor-pointer">
+                          <div className="flex flex-col items-center justify-center py-7 px-4">
+                            <Plus className="h-8 w-8 text-gray-400 mb-2" />
+                            <span className="text-sm font-medium text-gray-600">
+                              {uploading ? "Mengupload..." : "Tambah Foto"}
+                            </span>
+                            <p className="text-xs text-gray-500 mt-1">
+                              JPG, PNG, atau GIF
+                            </p>
+                          </div>
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            className="hidden"
+                            onChange={handleFileChange}
+                            disabled={uploading}
+                          />
+                        </label>
+                      </div>
+                      
+                      {form.formState.errors.photos && (
+                        <p className="text-sm font-medium text-destructive">
+                          {form.formState.errors.photos.message}
+                        </p>
+                      )}
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={uploading || form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  <Upload className="mr-2 h-4 w-4" />
+                  Submit Laporan
+                </>
+              )}
+            </Button>
           </form>
-        </CardContent>
-      </Card>
+        </Form>
+      </div>
     </div>
   );
 };
