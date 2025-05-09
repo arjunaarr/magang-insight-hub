@@ -15,6 +15,8 @@ const Sidebar = () => {
   const { user } = useAuth();
   const location = useLocation();
 
+  if (!user) return null;
+
   const isActive = (path: string) => {
     return location.pathname === path;
   };
@@ -47,12 +49,12 @@ const Sidebar = () => {
     {
       icon: LayoutDashboard,
       label: "Dashboard",
-      href: "/",
+      href: "/intern/dashboard",
     },
     {
       icon: FileText,
       label: "Laporan Saya",
-      href: "/my-reports",
+      href: "/intern/my-reports",
     },
     {
       icon: User,

@@ -15,6 +15,7 @@ import SubmitReportPage from "./pages/intern/submit-report";
 import MyReportsPage from "./pages/intern/my-reports";
 import EditProfilePage from "./pages/intern/edit-profile";
 import ReportDetailPage from "./pages/admin/report-detail";
+import MainLayout from "./components/layout/main-layout";
 
 function App() {
   return (
@@ -28,7 +29,6 @@ function App() {
 
 function AppContent() {
   const { user, isLoading } = useAuth();
-  const [isAuthenticated, setIsAuthenticated] = useState(!!user);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -37,59 +37,187 @@ function AppContent() {
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="login" element={!user ? <Login /> : <Navigate to="/dashboard" />} />
+      <Route path="login" element={!user ? <Login /> : <Navigate to="/" />} />
 
       {/* Admin Routes */}
       <Route
+        path="/"
+        element={
+          user?.role === 'admin' ? (
+            <MainLayout>
+              <AdminDashboard />
+            </MainLayout>
+          ) : user?.role === 'intern' ? (
+            <Navigate to="/intern/dashboard" />
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
+      />
+      <Route
         path="dashboard"
-        element={user?.role === 'admin' ? <AdminDashboard /> : <Navigate to="/login" />}
+        element={
+          user?.role === 'admin' ? (
+            <MainLayout>
+              <AdminDashboard />
+            </MainLayout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
       />
       <Route
         path="interns"
-        element={user?.role === 'admin' ? <InternsList /> : <Navigate to="/login" />}
+        element={
+          user?.role === 'admin' ? (
+            <MainLayout>
+              <InternsList />
+            </MainLayout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
       />
       <Route
         path="reports"
-        element={user?.role === 'admin' ? <ReportsPage /> : <Navigate to="/login" />}
+        element={
+          user?.role === 'admin' ? (
+            <MainLayout>
+              <ReportsPage />
+            </MainLayout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
       />
-      <Route path="reports/:id" element={<ReportDetailPage />} />
+      <Route 
+        path="reports/:id" 
+        element={
+          user?.role === 'admin' ? (
+            <MainLayout>
+              <ReportDetailPage />
+            </MainLayout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        } 
+      />
       <Route
         path="register-intern"
-        element={user?.role === 'admin' ? <RegisterInternPage /> : <Navigate to="/login" />}
+        element={
+          user?.role === 'admin' ? (
+            <MainLayout>
+              <RegisterInternPage />
+            </MainLayout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
       />
       <Route
         path="submission-status"
-        element={user?.role === 'admin' ? <SubmissionStatusPage /> : <Navigate to="/login" />}
+        element={
+          user?.role === 'admin' ? (
+            <MainLayout>
+              <SubmissionStatusPage />
+            </MainLayout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
       />
       <Route
         path="interns/:id"
-        element={user?.role === 'admin' ? <InternDetailPage /> : <Navigate to="/login" />}
+        element={
+          user?.role === 'admin' ? (
+            <MainLayout>
+              <InternDetailPage />
+            </MainLayout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
       />
       <Route
         path="settings"
-        element={user?.role === 'admin' ? <Settings /> : <Navigate to="/login" />}
+        element={
+          user?.role === 'admin' ? (
+            <MainLayout>
+              <Settings />
+            </MainLayout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
       />
 
       {/* Intern Routes */}
       <Route
         path="intern/dashboard"
-        element={user?.role === 'intern' ? <InternDashboard /> : <Navigate to="/login" />}
+        element={
+          user?.role === 'intern' ? (
+            <MainLayout>
+              <InternDashboard />
+            </MainLayout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
       />
       <Route
         path="intern/submit-report"
-        element={user?.role === 'intern' ? <SubmitReportPage /> : <Navigate to="/login" />}
+        element={
+          user?.role === 'intern' ? (
+            <MainLayout>
+              <SubmitReportPage />
+            </MainLayout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
       />
       <Route
         path="intern/my-reports"
-        element={user?.role === 'intern' ? <MyReportsPage /> : <Navigate to="/login" />}
+        element={
+          user?.role === 'intern' ? (
+            <MainLayout>
+              <MyReportsPage />
+            </MainLayout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
       />
       <Route
         path="intern/edit-profile"
-        element={user?.role === 'intern' ? <EditProfilePage /> : <Navigate to="/login" />}
+        element={
+          user?.role === 'intern' ? (
+            <MainLayout>
+              <EditProfilePage />
+            </MainLayout>
+          ) : (
+            <Navigate to="/login" />
+          )
+        }
       />
+      <Route path="profile" element={
+        user ? (
+          <MainLayout>
+            {user.role === 'intern' ? <EditProfilePage /> : <Settings />}
+          </MainLayout>
+        ) : (
+          <Navigate to="/login" />
+        )
+      } />
 
-      {/* Default Route */}
-      <Route path="/" element={<Navigate to={user ? (user.role === 'admin' ? '/dashboard' : '/intern/dashboard') : '/login'} />} />
+      {/* Catch all - redirect to appropriate dashboard or login */}
+      <Route path="*" element={
+        user ? (
+          <Navigate to={user.role === 'admin' ? '/' : '/intern/dashboard'} />
+        ) : (
+          <Navigate to="/login" />
+        )
+      } />
     </Routes>
   );
 }

@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  
+  if (!user) return null;
 
   return (
     <nav className="bg-magang-primary text-white shadow-md py-2 px-4">
