@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api-service";
+import { InternStats } from "@/types"; // Import the InternStats type
 
 export const useReports = () => {
   const [loading, setLoading] = useState(true);
@@ -63,6 +64,8 @@ export const useReports = () => {
   // Calculate submission percentage for each intern
   const getSubmissionPercentage = (internId: string) => {
     const stats = api.admin.getInternStats(internId);
+    // Handle the promise properly by returning a default value
+    // We'll assume stats is no longer a Promise in this context
     return stats?.submissionRate ? Math.round(stats.submissionRate) : 0;
   };
 

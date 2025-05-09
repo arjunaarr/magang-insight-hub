@@ -65,8 +65,8 @@ export const api = {
       return mockUniversities;
     },
     
-    getInternStats: async (internId: string) => {
-      await delay(300);
+    getInternStats: (internId: string) => {
+      // Return stats directly rather than a Promise
       return getInternStats(internId);
     },
     
@@ -172,7 +172,7 @@ export const api = {
         internId,
         timestamp: new Date().toLocaleString(),
         reportDate,
-        reportPhotos, // Changed from reportLinks to reportPhotos
+        reportPhotos,
         createdAt: new Date().toISOString()
       };
       

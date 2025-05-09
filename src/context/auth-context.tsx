@@ -10,6 +10,7 @@ interface AuthContextType {
   logout: () => void;
   isLoading: boolean;
   updateUserData: (userData: Partial<User>) => Promise<User>;
+  updateUserProfile: (userData: User) => void; // Add this method
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -70,8 +71,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Add the updateUserProfile method
+  const updateUserProfile = (updatedUser: User) => {
+    setUser(updatedUser);
+    localStorage.setItem("mangInsightUser", JSON.stringify(updatedUser));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading, updateUserData }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      login, 
+      logout, 
+      isLoading, 
+      updateUserData,
+      updateUserProfile 
+    }}>
       {children}
     </AuthContext.Provider>
   );

@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, Download, FileText, Plus } from "lucide-react";
+import { Search, Download, Image, Plus } from "lucide-react";
 
 const MyReportsPage = () => {
   const { user } = useAuth();
@@ -56,16 +56,15 @@ const MyReportsPage = () => {
 
   // Export reports as CSV
   const exportToCSV = () => {
-    const headers = ["Timestamp", "Tanggal Report", "Report Links"];
+    const headers = ["Timestamp", "Tanggal Report", "Jumlah Foto"];
     
     const csvData = [
       headers.join(","),
       ...filteredReports.map(report => {
-        const reportLinks = report.reportLinks.join("|");
         return [
           report.timestamp,
           report.reportDate,
-          `"${reportLinks}"`
+          report.reportPhotos?.length || 0
         ].join(",");
       })
     ].join("\n");
@@ -93,7 +92,7 @@ const MyReportsPage = () => {
     <div>
       <PageHeader title="Laporan Saya" description="Riwayat laporan yang telah disubmit">
         <div className="flex space-x-2">
-          <Link to="/submit-report">
+          <Link to="/intern/submit-report">
             <Button>
               <Plus className="h-4 w-4 mr-2" />
               Submit Laporan
@@ -122,7 +121,7 @@ const MyReportsPage = () => {
             <TableRow>
               <TableHead className="w-[180px]">Tanggal Laporan</TableHead>
               <TableHead className="w-[180px]">Waktu Submit</TableHead>
-              <TableHead>Link Laporan</TableHead>
+              <TableHead>Foto Laporan</TableHead>
               <TableHead className="text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
@@ -134,23 +133,26 @@ const MyReportsPage = () => {
                   <TableCell>{report.timestamp.split(" ")[1]}</TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-2">
-                      {report.reportLinks.map((link: string, index: number) => (
+                      {report.reportPhotos?.map((photo: string, index: number) => (
                         <a
                           key={index}
-                          href={link}
+                          href={photo}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 flex items-center"
                         >
-                          <FileText className="h-3 w-3 mr-1" />
-                          Report {index + 1}
+                          <Image className="h-3 w-3 mr-1" />
+                          Foto {index + 1}
                         </a>
                       ))}
+                      {!report.reportPhotos?.length && (
+                        <span className="text-xs text-gray-500">Tidak ada foto</span>
+                      )}
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="sm">
-                      Lihat
+                      Lihat Detail
                     </Button>
                   </TableCell>
                 </TableRow>

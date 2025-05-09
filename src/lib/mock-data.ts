@@ -1,186 +1,151 @@
 
-import { User, Report, Field } from "@/types";
+import { User, Report, Field, InternStats } from '@/types';
 
+// Mock users (admin and interns)
 export const mockUsers: User[] = [
   {
-    id: "admin-1",
-    name: "Admin User",
-    email: "admin@example.com",
-    role: "admin",
-    password: "admin123", // In a real app, this would be hashed
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=admin",
-    createdAt: new Date(2023, 0, 1).toISOString(),
+    id: 'admin-1',
+    name: 'Admin Utama',
+    email: 'admin@magangsemarang.id',
+    password: 'admin123',
+    role: 'admin',
+    createdAt: '2023-01-01T00:00:00.000Z'
   },
   {
-    id: "intern-1",
-    name: "Hannisa Ada Fitria",
-    email: "hannisa@example.com",
-    role: "intern",
-    password: "intern123",
-    university: "Universitas Gadjah Mada",
-    field: "Bidang 4 - Pengelolaan Infrastruktur",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Hannisa",
-    createdAt: new Date(2023, 1, 15).toISOString(),
+    id: 'intern-1',
+    name: 'Budi Santoso',
+    email: 'budi@example.com',
+    password: 'password123',
+    role: 'intern',
+    university: 'Universitas Diponegoro',
+    field: 'Teknologi Informasi',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Budi',
+    createdAt: '2023-03-15T00:00:00.000Z'
   },
   {
-    id: "intern-2",
-    name: "Chantika Mutiara Pratami",
-    email: "chantika@example.com",
-    role: "intern",
-    password: "intern123",
-    university: "Universitas Negeri Semarang",
-    field: "Bidang 2 - Sistem Pemerintahan Berbasis Elektronik",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Chantika",
-    createdAt: new Date(2023, 2, 5).toISOString(),
+    id: 'intern-2',
+    name: 'Siti Aisyah',
+    email: 'siti@example.com',
+    password: 'password123',
+    role: 'intern',
+    university: 'Universitas Negeri Semarang',
+    field: 'Hubungan Masyarakat',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Siti',
+    createdAt: '2023-03-20T00:00:00.000Z'
   },
   {
-    id: "intern-3",
-    name: "Syiffa Dea Rizkiansyah",
-    email: "syiffa@example.com",
-    role: "intern",
-    password: "intern123",
-    university: "Universitas Negeri Semarang",
-    field: "Bidang 2 - Sistem Pemerintahan Berbasis Elektronik",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Syiffa",
-    createdAt: new Date(2023, 3, 10).toISOString(),
+    id: 'intern-3',
+    name: 'Rudi Hermawan',
+    email: 'rudi@example.com',
+    password: 'password123',
+    role: 'intern',
+    university: 'Politeknik Negeri Semarang',
+    field: 'Desain Grafis',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Rudi',
+    createdAt: '2023-04-05T00:00:00.000Z'
   },
   {
-    id: "intern-4",
-    name: "Haikal Rijaldi Hidayat P.",
-    email: "haikal@example.com",
-    role: "intern",
-    password: "intern123",
-    university: "Universitas Negeri Semarang",
-    field: "Bidang 2 - Sistem Pemerintahan Berbasis Elektronik",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Haikal",
-    createdAt: new Date(2023, 4, 20).toISOString(),
-  },
-  {
-    id: "intern-5",
-    name: "Anugrah Ridho Afriadi",
-    email: "anugrah@example.com",
-    role: "intern",
-    password: "intern123",
-    university: "UNIVERSITAS NEGERI SEMARANG",
-    field: "Bidang 2 - Sistem Pemerintahan Berbasis Elektronik",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Anugrah",
-    createdAt: new Date(2023, 5, 1).toISOString(),
+    id: 'intern-4',
+    name: 'Dewi Lestari',
+    email: 'dewi@example.com',
+    password: 'password123',
+    role: 'intern',
+    university: 'Universitas Diponegoro',
+    field: 'Administrasi',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Dewi',
+    createdAt: '2023-04-10T00:00:00.000Z'
   }
 ];
 
+// Mock reports
 export const mockReports: Report[] = [
   {
-    id: "report-1",
-    internId: "intern-1",
-    timestamp: "06/05/2025 11:15:59",
-    reportDate: "06/05/2025",
-    reportLinks: [
-      "https://drive.google.com/file1",
-      "https://drive.google.com/file2",
-      "https://drive.google.com/file3",
-      "https://drive.google.com/file4",
-      "https://drive.google.com/file5"
+    id: 'report-1',
+    internId: 'intern-1',
+    timestamp: '2023-06-01 09:30:45',
+    reportDate: '2023-06-01',
+    reportPhotos: [
+      'https://placehold.co/600x400/png?text=Report+Photo+1',
+      'https://placehold.co/600x400/png?text=Report+Photo+2'
     ],
-    createdAt: new Date(2025, 4, 6, 11, 15, 59).toISOString(),
+    createdAt: '2023-06-01T09:30:45.000Z'
   },
   {
-    id: "report-2",
-    internId: "intern-2",
-    timestamp: "06/05/2025 15:11:28",
-    reportDate: "06/05/2025",
-    reportLinks: [
-      "https://drive.google.com/file1",
-      "https://drive.google.com/file2",
-      "https://drive.google.com/file3"
+    id: 'report-2',
+    internId: 'intern-1',
+    timestamp: '2023-06-02 10:15:30',
+    reportDate: '2023-06-02',
+    reportPhotos: [
+      'https://placehold.co/600x400/png?text=Report+Photo+1'
     ],
-    createdAt: new Date(2025, 4, 6, 15, 11, 28).toISOString(),
+    createdAt: '2023-06-02T10:15:30.000Z'
   },
   {
-    id: "report-3",
-    internId: "intern-3",
-    timestamp: "06/05/2025 19:50:15",
-    reportDate: "06/05/2025",
-    reportLinks: [
-      "https://drive.google.com/file1",
-      "https://drive.google.com/file2",
-      "https://drive.google.com/file3"
+    id: 'report-3',
+    internId: 'intern-2',
+    timestamp: '2023-06-01 08:45:12',
+    reportDate: '2023-06-01',
+    reportPhotos: [
+      'https://placehold.co/600x400/png?text=Report+Photo+1',
+      'https://placehold.co/600x400/png?text=Report+Photo+2',
+      'https://placehold.co/600x400/png?text=Report+Photo+3'
     ],
-    createdAt: new Date(2025, 4, 6, 19, 50, 15).toISOString(),
+    createdAt: '2023-06-01T08:45:12.000Z'
   },
   {
-    id: "report-4",
-    internId: "intern-4",
-    timestamp: "07/05/2025 0:01:18",
-    reportDate: "07/05/2025",
-    reportLinks: [
-      "https://drive.google.com/file1",
-      "https://drive.google.com/file2",
-      "https://drive.google.com/file3"
+    id: 'report-4',
+    internId: 'intern-3',
+    timestamp: '2023-06-01 11:20:05',
+    reportDate: '2023-06-01',
+    reportPhotos: [
+      'https://placehold.co/600x400/png?text=Report+Photo+1'
     ],
-    createdAt: new Date(2025, 4, 7, 0, 1, 18).toISOString(),
+    createdAt: '2023-06-01T11:20:05.000Z'
   },
   {
-    id: "report-5",
-    internId: "intern-4",
-    timestamp: "07/05/2025 0:08:46",
-    reportDate: "07/05/2025",
-    reportLinks: [
-      "https://drive.google.com/file1",
-      "https://drive.google.com/file2",
-      "https://drive.google.com/file3"
+    id: 'report-5',
+    internId: 'intern-3',
+    timestamp: '2023-06-02 10:30:45',
+    reportDate: '2023-06-02',
+    reportPhotos: [
+      'https://placehold.co/600x400/png?text=Report+Photo+1',
+      'https://placehold.co/600x400/png?text=Report+Photo+2'
     ],
-    createdAt: new Date(2025, 4, 7, 0, 8, 46).toISOString(),
+    createdAt: '2023-06-02T10:30:45.000Z'
   },
   {
-    id: "report-6",
-    internId: "intern-5",
-    timestamp: "07/05/2025 0:16:23",
-    reportDate: "07/05/2025",
-    reportLinks: [
-      "https://drive.google.com/file1",
-      "https://drive.google.com/file2",
-      "https://drive.google.com/file3"
+    id: 'report-6',
+    internId: 'intern-4',
+    timestamp: '2023-06-01 13:40:22',
+    reportDate: '2023-06-01',
+    reportPhotos: [
+      'https://placehold.co/600x400/png?text=Report+Photo+1',
+      'https://placehold.co/600x400/png?text=Report+Photo+2'
     ],
-    createdAt: new Date(2025, 4, 7, 0, 16, 23).toISOString(),
+    createdAt: '2023-06-01T13:40:22.000Z'
   }
 ];
 
+// Mock fields/departments
 export const mockFields: Field[] = [
-  {
-    id: "field-1",
-    name: "Bidang 1 - Umum"
-  },
-  {
-    id: "field-2",
-    name: "Bidang 2 - Sistem Pemerintahan Berbasis Elektronik"
-  },
-  {
-    id: "field-3",
-    name: "Bidang 3 - Pengembangan Aplikasi"
-  },
-  {
-    id: "field-4",
-    name: "Bidang 4 - Pengelolaan Infrastruktur"
-  },
-  {
-    id: "field-5",
-    name: "Bidang 5 - Keamanan Informasi"
-  }
+  { id: 'field-1', name: 'Teknologi Informasi' },
+  { id: 'field-2', name: 'Hubungan Masyarakat' },
+  { id: 'field-3', name: 'Desain Grafis' },
+  { id: 'field-4', name: 'Administrasi' },
+  { id: 'field-5', name: 'Keuangan' }
 ];
 
+// Mock universities
 export const mockUniversities: string[] = [
-  "Universitas Gadjah Mada",
-  "Universitas Indonesia",
-  "Institut Teknologi Bandung",
-  "Universitas Negeri Semarang",
-  "Universitas Diponegoro",
-  "Universitas Brawijaya",
-  "Institut Teknologi Sepuluh Nopember",
-  "Universitas Airlangga",
-  "Universitas Padjadjaran"
+  'Universitas Diponegoro',
+  'Universitas Negeri Semarang',
+  'Politeknik Negeri Semarang',
+  'Universitas Dian Nuswantoro',
+  'Universitas Islam Sultan Agung',
+  'Universitas Katolik Soegijapranata'
 ];
 
-// Helper function to get intern statistics
+// Function to get intern stats
 export const getInternStats = (internId: string): InternStats => {
   const internReports = mockReports.filter(report => report.internId === internId);
   
@@ -193,14 +158,24 @@ export const getInternStats = (internId: string): InternStats => {
     return reportDate >= oneWeekAgo && reportDate <= today;
   });
   
-  const lastReport = internReports.sort((a, b) => 
-    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  )[0];
+  let lastSubmission = null;
+  if (internReports.length > 0) {
+    // Get the most recent report
+    const latestReport = [...internReports].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )[0];
+    lastSubmission = latestReport.createdAt;
+  }
+  
+  // Calculate submission rate (as percentage of days covered)
+  const startDate = new Date(mockUsers.find(user => user.id === internId)?.createdAt || today);
+  const daysSinceStart = Math.max(1, Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)));
+  const submissionRate = (internReports.length / daysSinceStart) * 100;
   
   return {
     totalReports: internReports.length,
     submittedThisWeek: reportsThisWeek.length,
-    lastSubmission: lastReport?.reportDate,
-    submissionRate: internReports.length > 0 ? 100 : 0 // Simplified calculation
+    lastSubmission,
+    submissionRate: Math.min(100, submissionRate) // Cap at 100%
   };
 };
