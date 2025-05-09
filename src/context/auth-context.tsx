@@ -24,7 +24,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const storedUser = localStorage.getItem("mangInsightUser");
     if (storedUser) {
       try {
-        setUser(JSON.parse(storedUser));
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
       } catch (error) {
         console.error("Error parsing stored user data:", error);
         localStorage.removeItem("mangInsightUser"); // Remove invalid data
@@ -47,9 +48,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const userToStore = { ...foundUser };
         delete userToStore.password;
         
-        setUser(foundUser);
-        // Store user in localStorage
-        localStorage.setItem("mangInsightUser", JSON.stringify(foundUser));
+        // Set the user in state
+        setUser(userToStore);
+        
+        // Store user in localStorage WITHOUT password
+        localStorage.setItem("mangInsightUser", JSON.stringify(userToStore));
         return true;
       }
       return false;

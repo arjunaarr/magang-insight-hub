@@ -21,18 +21,27 @@ const Login = () => {
 
     try {
       const success = await login(email, password);
+      
       if (success) {
         toast({
           title: "Login berhasil",
           description: "Selamat datang di Magang Insight Hub",
           variant: "default",
         });
-        // Explicitly navigate to the correct dashboard based on role
-        const user = JSON.parse(localStorage.getItem("mangInsightUser") || "{}");
-        if (user.role === 'admin') {
-          navigate("/");
+        
+        // Get user from localStorage to determine where to redirect
+        const storedUser = localStorage.getItem("mangInsightUser");
+        if (storedUser) {
+          const user = JSON.parse(storedUser);
+          // Redirect based on role
+          if (user.role === 'admin') {
+            navigate("/", { replace: true });
+          } else {
+            navigate("/intern/dashboard", { replace: true });
+          }
         } else {
-          navigate("/intern/dashboard");
+          // Fallback just in case
+          navigate("/", { replace: true });
         }
       } else {
         toast({

@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/auth-context";
 import Login from "./pages/login";
+import Landing from "./pages/landing";
 import AdminDashboard from "./pages/admin/dashboard";
 import InternDashboard from "./pages/intern/dashboard";
 import InternsList from "./pages/admin/interns";
@@ -37,23 +38,10 @@ function AppContent() {
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="login" element={!user ? <Login /> : <Navigate to="/" />} />
+      <Route path="/" element={!user ? <Landing /> : (user.role === 'admin' ? <Navigate to="/dashboard" /> : <Navigate to="/intern/dashboard" />)} />
+      <Route path="login" element={!user ? <Login /> : (user.role === 'admin' ? <Navigate to="/dashboard" /> : <Navigate to="/intern/dashboard" />)} />
 
       {/* Admin Routes */}
-      <Route
-        path="/"
-        element={
-          user?.role === 'admin' ? (
-            <MainLayout>
-              <AdminDashboard />
-            </MainLayout>
-          ) : user?.role === 'intern' ? (
-            <Navigate to="/intern/dashboard" />
-          ) : (
-            <Navigate to="/login" />
-          )
-        }
-      />
       <Route
         path="dashboard"
         element={
@@ -205,15 +193,6 @@ function AppContent() {
           <MainLayout>
             {user.role === 'intern' ? <EditProfilePage /> : <Settings />}
           </MainLayout>
-        ) : (
-          <Navigate to="/login" />
-        )
-      } />
-
-      {/* Catch all - redirect to appropriate dashboard or login */}
-      <Route path="*" element={
-        user ? (
-          <Navigate to={user.role === 'admin' ? '/' : '/intern/dashboard'} />
         ) : (
           <Navigate to="/login" />
         )
