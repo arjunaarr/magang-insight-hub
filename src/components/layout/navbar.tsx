@@ -20,7 +20,7 @@ const Navbar = () => {
   return (
     <nav className="bg-magang-primary text-white shadow-md py-2 px-4">
       <div className="container mx-auto flex justify-between items-center">
-        <Link to="/" className="text-xl font-bold flex items-center">
+        <Link to={user.role === 'admin' ? '/' : '/intern/dashboard'} className="text-xl font-bold flex items-center">
           <span>Magang Insight Hub</span>
         </Link>
 

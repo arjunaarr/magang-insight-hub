@@ -27,7 +27,13 @@ const Login = () => {
           description: "Selamat datang di Magang Insight Hub",
           variant: "default",
         });
-        navigate("/");
+        // Explicitly navigate to the correct dashboard based on role
+        const user = JSON.parse(localStorage.getItem("mangInsightUser") || "{}");
+        if (user.role === 'admin') {
+          navigate("/");
+        } else {
+          navigate("/intern/dashboard");
+        }
       } else {
         toast({
           title: "Login gagal",

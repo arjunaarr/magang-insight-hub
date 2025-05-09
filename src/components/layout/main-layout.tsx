@@ -11,6 +11,7 @@ interface MainLayoutProps {
 const MainLayout = ({ children }: MainLayoutProps) => {
   const { user } = useAuth();
 
+  // If no user, just return children without layout
   if (!user) {
     return <>{children}</>;
   }

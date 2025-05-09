@@ -10,7 +10,7 @@ interface AuthContextType {
   logout: () => void;
   isLoading: boolean;
   updateUserData: (userData: Partial<User>) => Promise<User>;
-  updateUserProfile: (userData: User) => void; // Add this method
+  updateUserProfile: (userData: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,7 +23,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Check if user is already logged in (from localStorage)
     const storedUser = localStorage.getItem("mangInsightUser");
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.error("Error parsing stored user data:", error);
+        localStorage.removeItem("mangInsightUser"); // Remove invalid data
+      }
     }
     setIsLoading(false);
   }, []);
@@ -38,6 +43,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       );
       
       if (foundUser) {
+        // Create a copy without password for security
+        const userToStore = { ...foundUser };
+        delete userToStore.password;
+        
         setUser(foundUser);
         // Store user in localStorage
         localStorage.setItem("mangInsightUser", JSON.stringify(foundUser));
@@ -71,7 +80,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Add the updateUserProfile method
   const updateUserProfile = (updatedUser: User) => {
     setUser(updatedUser);
     localStorage.setItem("mangInsightUser", JSON.stringify(updatedUser));
